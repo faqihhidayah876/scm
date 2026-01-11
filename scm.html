@@ -6,41 +6,219 @@
     <title>SCM Interactive Study Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8f5f2; color: #334155; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        :root {
+            --primary-color: #0d9488;
+            --secondary-color: #3b82f6;
+            --accent-color: #8b5cf6;
+            --background-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            --card-gradient: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--background-gradient);
+            color: #334155;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(13, 148, 136, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 20%);
+            z-index: -1;
+        }
+        
+        .tab-content { 
+            display: none; 
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        .tab-content.active { 
+            display: block; 
+        }
+        
         .chart-container { 
             position: relative; 
             width: 100%; 
-            max-width: 800px; 
             margin: 0 auto; 
             height: 300px; 
-            max-height: 400px; 
         }
-        @media (min-width: 768px) { .chart-container { height: 400px; } }
-        .table-scroll::-webkit-scrollbar { height: 8px; }
-        .table-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        @media (min-width: 768px) { 
+            .chart-container { 
+                height: 350px; 
+            } 
+        }
+        
+        .table-scroll::-webkit-scrollbar { 
+            height: 8px; 
+        }
+        
+        .table-scroll::-webkit-scrollbar-thumb { 
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(13, 148, 136, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 148, 136, 0);
+            }
+        }
+        
+        .floating-card {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .pulse-button {
+            animation: pulse 2s infinite;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            background: var(--card-gradient);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .nav-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+        
+        .nav-btn:hover::after, .nav-btn.active::after {
+            width: 100%;
+        }
+        
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        }
+        
+        .result-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f0f9ff 100%);
+            border-left: 5px solid transparent;
+            border-image: linear-gradient(to bottom, var(--primary-color), var(--secondary-color)) 1;
+        }
+        
+        .quiz-option {
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateX(5px);
+        }
+        
+        .correct-answer {
+            background: linear-gradient(to right, #10b981, #34d399) !important;
+            color: white !important;
+        }
+        
+        .incorrect-answer {
+            background: linear-gradient(to right, #ef4444, #f87171) !important;
+            color: white !important;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.5s ease;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
     <!-- Navigation -->
-    <nav class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="sticky top-0 z-50 gradient-bg shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <span class="text-2xl font-bold text-teal-700">
-                        SCM<span class="text-slate-500 text-lg font-normal">.Edu</span>
-                    </span>
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg">
+                        <i class="fas fa-boxes text-teal-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">SCM<span class="font-light">StudyHub</span></h1>
+                        <p class="text-xs text-teal-100">Persiapan UAS Supply Chain Management</p>
+                    </div>
                 </div>
-                <div class="flex space-x-4 overflow-x-auto items-center">
-                    <button onclick="switchTab('study')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 transition" id="btn-study">Materi</button>
-                    <button onclick="switchTab('tools')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition" id="btn-tools">Kalkulator</button>
-                    <button onclick="switchTab('visuals')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition" id="btn-visuals">Visualisasi</button>
-                    <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition" id="btn-quiz">Latihan Soal</button>
+                <div class="flex space-x-1 overflow-x-auto items-center bg-white/20 backdrop-blur-sm rounded-full p-1">
+                    <button onclick="switchTab('study')" class="nav-btn px-5 py-3 rounded-full text-sm font-medium text-white hover:bg-white/20 transition active" id="btn-study">
+                        <i class="fas fa-book mr-2"></i>Materi
+                    </button>
+                    <button onclick="switchTab('tools')" class="nav-btn px-5 py-3 rounded-full text-sm font-medium text-white hover:bg-white/20 transition" id="btn-tools">
+                        <i class="fas fa-calculator mr-2"></i>Kalkulator
+                    </button>
+                    <button onclick="switchTab('visuals')" class="nav-btn px-5 py-3 rounded-full text-sm font-medium text-white hover:bg-white/20 transition" id="btn-visuals">
+                        <i class="fas fa-chart-line mr-2"></i>Visualisasi
+                    </button>
+                    <button onclick="switchTab('quiz')" class="nav-btn px-5 py-3 rounded-full text-sm font-medium text-white hover:bg-white/20 transition" id="btn-quiz">
+                        <i class="fas fa-question-circle mr-2"></i>Latihan Soal
+                    </button>
                 </div>
             </div>
         </div>
@@ -49,176 +227,374 @@
     <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <!-- SECTION 1: STUDY MODULES -->
-        <div id="study" class="tab-content active fade-in">
-            <div class="text-center mb-10">
-                <h1 class="text-3xl font-bold text-slate-800">Ringkasan Materi SCM</h1>
-                <p class="mt-2 text-slate-600">Pelajari konsep kunci dari Manajemen Pergudangan hingga MRP.</p>
+        <div id="study" class="tab-content active">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-slate-800 mb-3">Ringkasan Materi <span class="gradient-text">SCM</span></h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Pelajari konsep kunci dari Manajemen Pergudangan hingga MRP dengan materi interaktif yang mudah dipahami.</p>
             </div>
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="module-container"></div>
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3" id="module-container"></div>
         </div>
 
         <!-- SECTION 2: INTERACTIVE TOOLS -->
-        <div id="tools" class="tab-content fade-in">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-slate-800">Alat Simulasi & Hitungan</h1>
-                <p class="mt-2 text-slate-600">Gunakan alat ini untuk memahami rumus EOQ dan logika MRP.</p>
+        <div id="tools" class="tab-content">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-slate-800 mb-3">Alat Simulasi <span class="gradient-text">& Hitungan</span></h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Gunakan alat interaktif ini untuk memahami rumus EOQ dan logika MRP dengan simulasi real-time.</p>
             </div>
-            <div class="grid gap-8 lg:grid-cols-1">
-                <!-- EOQ Calculator -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500">
-                    <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center">
-                        <span class="bg-teal-100 text-teal-700 p-2 rounded-lg mr-3">∑</span>
-                        Kalkulator EOQ & ROP
-                    </h2>
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700">Permintaan Tahunan (D)</label>
-                                <input type="number" id="eoq-D" value="24000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700">Biaya Pesan per Order (S)</label>
-                                <input type="number" id="eoq-S" value="450000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700">Harga per Unit (C)</label>
-                                <input type="number" id="eoq-C" value="12000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
+            
+            <!-- EOQ Calculator -->
+            <div class="card-hover bg-white rounded-2xl shadow-xl p-8 mb-10 floating-card">
+                <div class="flex items-center mb-6">
+                    <div class="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center mr-4">
+                        <i class="fas fa-calculator text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Kalkulator EOQ & ROP</h2>
+                        <p class="text-slate-500">Hitung Economic Order Quantity dan Reorder Point secara real-time</p>
+                    </div>
+                </div>
+                
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Input Fields -->
+                    <div class="lg:col-span-2">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700">Biaya Simpan % (I)</label>
-                                    <input type="number" id="eoq-I" value="18" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
-                                    <p class="text-xs text-gray-500 mt-1">Contoh: 18 untuk 18%</p>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                                        <i class="fas fa-chart-line mr-2 text-teal-500"></i>Permintaan Tahunan (D)
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" id="eoq-D" value="24000" min="0" class="w-full p-4 pl-12 rounded-xl border border-slate-300 bg-slate-50 input-glow focus:outline-none transition">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex justify-between">
+                                        <button class="text-xs px-3 py-1 bg-teal-100 text-teal-700 rounded-full hover:bg-teal-200 transition" onclick="document.getElementById('eoq-D').value = 10000">10K</button>
+                                        <button class="text-xs px-3 py-1 bg-teal-100 text-teal-700 rounded-full hover:bg-teal-200 transition" onclick="document.getElementById('eoq-D').value = 24000">24K</button>
+                                        <button class="text-xs px-3 py-1 bg-teal-100 text-teal-700 rounded-full hover:bg-teal-200 transition" onclick="document.getElementById('eoq-D').value = 50000">50K</button>
+                                    </div>
                                 </div>
+                                
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700">Lead Time (Hari)</label>
-                                    <input type="number" id="eoq-LT" value="7" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                                        <i class="fas fa-money-bill-wave mr-2 text-teal-500"></i>Biaya Pesan per Order (S)
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" id="eoq-S" value="450000" min="0" class="w-full p-4 pl-12 rounded-xl border border-slate-300 bg-slate-50 input-glow focus:outline-none transition">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">
+                                            <i class="fas fa-receipt"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-xs text-slate-500">Biaya tetap setiap kali melakukan pemesanan</div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                                        <i class="fas fa-tag mr-2 text-teal-500"></i>Harga per Unit (C)
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" id="eoq-C" value="12000" min="0" class="w-full p-4 pl-12 rounded-xl border border-slate-300 bg-slate-50 input-glow focus:outline-none transition">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700">Safety Stock (Unit)</label>
-                                <input type="number" id="eoq-SS" value="240" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                            
+                            <div class="space-y-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Biaya Simpan % (I)</label>
+                                        <div class="relative">
+                                            <input type="number" id="eoq-I" value="18" min="0" max="100" class="w-full p-4 pl-12 rounded-xl border border-slate-300 bg-slate-50 input-glow focus:outline-none transition">
+                                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">%</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Lead Time (Hari)</label>
+                                        <div class="relative">
+                                            <input type="number" id="eoq-LT" value="7" min="0" class="w-full p-4 pl-12 rounded-xl border border-slate-300 bg-slate-50 input-glow focus:outline-none transition">
+                                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Safety Stock (Unit)</label>
+                                    <div class="relative">
+                                        <input type="number" id="eoq-SS" value="240" min="0" class="w-full p-4 pl-12 rounded-xl border border-slate-300 bg-slate-50 input-glow focus:outline-none transition">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-xs text-slate-500">Persediaan tambahan untuk antisipasi ketidakpastian</div>
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <button onclick="calculateEOQ()" class="w-full gradient-bg text-white font-bold py-4 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 pulse-button">
+                                        <i class="fas fa-sync-alt mr-2"></i>Hitung Ulang EOQ
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Results Panel -->
+                    <div class="result-card p-6 rounded-2xl shadow-inner">
+                        <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">Hasil Perhitungan</h3>
                         
-                        <div class="bg-slate-50 p-6 rounded-lg flex flex-col justify-center space-y-6">
+                        <div class="space-y-6">
                             <div class="text-center">
-                                <p class="text-sm text-slate-500 font-medium uppercase">Economic Order Quantity (EOQ)</p>
-                                <p class="text-4xl font-bold text-teal-600 mt-1" id="res-eoq">0</p>
-                                <p class="text-sm text-slate-400">Unit per pesanan</p>
-                            </div>
-                            <div class="flex justify-between border-t border-slate-200 pt-4">
-                                <div class="text-center w-1/2 border-r border-slate-200">
-                                    <p class="text-xs text-slate-500 font-medium">Reorder Point (ROP)</p>
-                                    <p class="text-xl font-bold text-slate-700" id="res-rop">0</p>
-                                    <p class="text-xs text-slate-400">Unit</p>
+                                <div class="inline-block relative">
+                                    <svg class="w-32 h-32" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                                        <circle id="eoq-progress" cx="50" cy="50" r="45" fill="none" stroke="url(#gradient)" stroke-width="8" stroke-linecap="round" class="progress-ring-circle"/>
+                                        <defs>
+                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#0d9488"/>
+                                                <stop offset="100%" stop-color="#3b82f6"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <text x="50" y="50" text-anchor="middle" dy="0.3em" class="text-2xl font-bold fill-slate-800" id="eoq-value">0</text>
+                                    </svg>
                                 </div>
-                                <div class="text-center w-1/2">
-                                    <p class="text-xs text-slate-500 font-medium">Total Cost (Tahunan)</p>
-                                    <p class="text-xl font-bold text-slate-700" id="res-tc">0</p>
-                                    <p class="text-xs text-slate-400">Rupiah</p>
+                                <p class="text-sm text-slate-500 mt-2">Economic Order Quantity (EOQ)</p>
+                                <p class="text-lg font-bold text-teal-600 mt-1" id="res-eoq-detail">0 unit per pesanan</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-xl text-center">
+                                    <div class="text-2xl font-bold text-blue-600" id="res-rop">0</div>
+                                    <div class="text-xs text-blue-500 mt-1">Reorder Point</div>
+                                    <div class="text-xs text-slate-400">Unit</div>
+                                </div>
+                                <div class="bg-teal-50 p-4 rounded-xl text-center">
+                                    <div class="text-2xl font-bold text-teal-600" id="res-tc">0</div>
+                                    <div class="text-xs text-teal-500 mt-1">Total Cost</div>
+                                    <div class="text-xs text-slate-400">Rupiah/tahun</div>
                                 </div>
                             </div>
-                            <div class="bg-blue-50 p-3 rounded text-xs text-blue-800">
-                                <p><strong>Rumus:</strong> EOQ = √(2×D×S / H)</p>
-                                <p>Dimana H = I × C</p>
+                            
+                            <div class="bg-slate-50 p-4 rounded-xl">
+                                <h4 class="font-bold text-slate-700 mb-2">Rumus:</h4>
+                                <div class="text-sm text-slate-600 space-y-1">
+                                    <div>EOQ = √(2 × D × S / H)</div>
+                                    <div>ROP = (D/365 × LT) + Safety Stock</div>
+                                    <div class="pt-2 text-xs">D = Permintaan Tahunan, S = Biaya Pesan, H = I × C</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- MRP Simulator -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-500">
-                    <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center">
-                        <span class="bg-indigo-100 text-indigo-700 p-2 rounded-lg mr-3">📅</span>
-                        Simulator MRP Sederhana (Studi Kasus: Kereta Dorong)
-                    </h2>
-                    <p class="text-sm text-slate-600 mb-4">
-                        Ubah <strong>Gross Requirements (MPS)</strong> untuk Produk Jadi (Kereta Dorong) di minggu ke-8 untuk melihat dampaknya pada komponen level bawah.
-                        <br><span class="text-xs italic">Skenario: Kereta Dorong butuh 2 Tangkai & 1 Sub-Roda. Sub-Roda butuh 1 Ban.</span>
-                    </p>
-
-                    <div class="grid md:grid-cols-4 gap-4 mb-6">
-                        <div class="col-span-1">
-                            <label class="block text-sm font-medium text-slate-700">Kebutuhan Minggu 8 (Unit)</label>
-                            <input type="number" id="mrp-gross" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-slate-50 p-2 border">
-                            <button onclick="updateMRP()" class="mt-2 w-full bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 transition">Hitung MRP</button>
-                        </div>
-                        <div class="col-span-3 bg-slate-50 p-3 rounded text-sm text-slate-600 grid grid-cols-2 gap-2">
-                            <div><strong>Kereta Dorong:</strong> Stok 30, LT 1, Lot LFL</div>
-                            <div><strong>Tangkai (2x):</strong> Stok 100, LT 2, Lot 150 (Receipt 200 di Wk 2)</div>
-                            <div><strong>Sub-Roda (1x):</strong> Stok 220, LT 1, Lot 300</div>
-                            <div><strong>Ban (1x):</strong> Stok 50, LT 1, Lot 250</div>
-                        </div>
+            <!-- MRP Simulator -->
+            <div class="card-hover bg-white rounded-2xl shadow-xl p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-14 h-14 rounded-xl bg-indigo-500 flex items-center justify-center mr-4">
+                        <i class="fas fa-project-diagram text-white text-2xl"></i>
                     </div>
-
-                    <div class="overflow-x-auto table-scroll">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm text-center">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-3 py-2 text-left">Minggu</th>
-                                    <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200" id="mrp-table-body"></tbody>
-                        </table>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Simulator MRP Sederhana</h2>
+                        <p class="text-slate-500">Studi Kasus: Kereta Dorong - Ubah kebutuhan untuk melihat efek cascading</p>
                     </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Kebutuhan Minggu 8 (Gross Requirements)</label>
+                            <div class="flex items-center">
+                                <input type="range" id="mrp-gross-slider" min="0" max="200" value="50" class="flex-1 mr-4" oninput="updateMRPSlider(this.value)">
+                                <div class="relative w-32">
+                                    <input type="number" id="mrp-gross" value="50" min="0" class="w-full p-3 rounded-xl border border-indigo-300 bg-indigo-50 text-center font-bold text-indigo-700">
+                                    <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-indigo-500">
+                                        <i class="fas fa-boxes"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="updateMRP()" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
+                            <i class="fas fa-play-circle mr-2"></i>Jalankan Simulasi MRP
+                        </button>
+                    </div>
+                    
+                    <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200">
+                        <h4 class="font-bold text-indigo-800 mb-3">Spesifikasi Komponen:</h4>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="font-bold text-indigo-700">Kereta Dorong</div>
+                                <div class="text-sm text-slate-600">Stok: 30, LT: 1, Lot: LFL</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="font-bold text-indigo-700">Tangkai (2x)</div>
+                                <div class="text-sm text-slate-600">Stok: 100, LT: 2, Lot: 150</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="font-bold text-indigo-700">Sub-Roda (1x)</div>
+                                <div class="text-sm text-slate-600">Stok: 220, LT: 1, Lot: 300</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="font-bold text-indigo-700">Ban (1x)</div>
+                                <div class="text-sm text-slate-600">Stok: 50, LT: 1, Lot: 250</div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-indigo-600 mt-3 italic">
+                            <i class="fas fa-info-circle mr-1"></i> Skenario: Kereta Dorong butuh 2 Tangkai & 1 Sub-Roda. Sub-Roda butuh 1 Ban.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto table-scroll rounded-xl border border-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm text-center">
+                        <thead class="bg-slate-800 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-semibold">Minggu</th>
+                                <th class="px-4 py-3 font-semibold">1</th>
+                                <th class="px-4 py-3 font-semibold">2</th>
+                                <th class="px-4 py-3 font-semibold">3</th>
+                                <th class="px-4 py-3 font-semibold">4</th>
+                                <th class="px-4 py-3 font-semibold">5</th>
+                                <th class="px-4 py-3 font-semibold">6</th>
+                                <th class="px-4 py-3 font-semibold">7</th>
+                                <th class="px-4 py-3 font-semibold">8</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white" id="mrp-table-body"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <!-- SECTION 3: VISUAL INSIGHTS -->
-        <div id="visuals" class="tab-content fade-in">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-slate-800">Visualisasi Konsep</h1>
-                <p class="mt-2 text-slate-600">Grafik interaktif untuk memahami hubungan antar variabel.</p>
+        <div id="visuals" class="tab-content">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-slate-800 mb-3">Visualisasi <span class="gradient-text">Konsep SCM</span></h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Grafik interaktif untuk memahami hubungan antar variabel dan prinsip Supply Chain.</p>
             </div>
             <div class="grid gap-8 md:grid-cols-2">
                 <!-- EOQ Chart -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-2">Kurva Biaya Persediaan (Konsep EOQ)</h3>
-                    <p class="text-sm text-slate-500 mb-4">Melihat trade-off antara Biaya Simpan dan Biaya Pesan.</p>
+                <div class="card-hover bg-white rounded-2xl shadow-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-area text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Kurva Biaya Persediaan (EOQ)</h3>
+                            <p class="text-sm text-slate-500">Trade-off antara Biaya Simpan dan Biaya Pesan</p>
+                        </div>
+                    </div>
                     <div class="chart-container">
                         <canvas id="eoqChart"></canvas>
                     </div>
-                    <div class="mt-4 text-xs text-slate-500 text-center">
-                        Titik temu antara garis merah dan biru adalah EOQ optimal.
+                    <div class="mt-6 flex justify-center space-x-4">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-teal-600 mr-2"></div>
+                            <span class="text-xs text-slate-600">Total Cost</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                            <span class="text-xs text-slate-600">Holding Cost</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                            <span class="text-xs text-slate-600">Ordering Cost</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ABC Analysis Chart -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-2">Prinsip Analisis ABC (Pareto)</h3>
-                    <p class="text-sm text-slate-500 mb-4">Kelas A (Sedikit item, Nilai tinggi) vs Kelas C.</p>
+                <div class="card-hover bg-white rounded-2xl shadow-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-purple-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-bar text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Prinsip Analisis ABC (Pareto)</h3>
+                            <p class="text-sm text-slate-500">Kelas A (Sedikit item, Nilai tinggi) vs Kelas C</p>
+                        </div>
+                    </div>
                     <div class="chart-container">
                         <canvas id="abcChart"></canvas>
                     </div>
-                    <div class="mt-4 text-xs text-slate-500 text-center">
-                        Kelas A butuh kontrol ketat, Kelas C kontrol longgar.
+                    <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-red-50 p-3 rounded-lg">
+                            <div class="font-bold text-red-600">Kelas A</div>
+                            <div class="text-xs text-slate-600">Kontrol Ketat</div>
+                        </div>
+                        <div class="bg-yellow-50 p-3 rounded-lg">
+                            <div class="font-bold text-yellow-600">Kelas B</div>
+                            <div class="text-xs text-slate-600">Kontrol Moderat</div>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <div class="font-bold text-blue-600">Kelas C</div>
+                            <div class="text-xs text-slate-600">Kontrol Longgar</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- SECTION 4: PRACTICE QUIZ -->
-        <div id="quiz" class="tab-content fade-in">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-slate-800">Latihan Soal Ujian</h1>
-                <p class="mt-2 text-slate-600">20 Soal Prediksi Pilihan Ganda. Klik jawaban untuk melihat pembahasan.</p>
-                <div class="mt-4 text-xl font-bold text-teal-600" id="score-display">Skor: 0 / 0</div>
+        <div id="quiz" class="tab-content">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-slate-800 mb-3">Latihan Soal <span class="gradient-text">UAS SCM</span></h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">20 Soal Prediksi Pilihan Ganda dengan pembahasan langsung.</p>
+                
+                <div class="mt-6 flex items-center justify-center">
+                    <div class="relative">
+                        <svg class="w-28 h-28" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                            <circle id="quiz-progress" cx="50" cy="50" r="45" fill="none" stroke="url(#quiz-gradient)" stroke-width="8" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="quiz-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#8b5cf6"/>
+                                    <stop offset="100%" stop-color="#3b82f6"/>
+                                </linearGradient>
+                            </defs>
+                            <text x="50" y="50" text-anchor="middle" dy="0.3em" class="text-2xl font-bold fill-slate-800" id="quiz-score">0%</text>
+                        </svg>
+                    </div>
+                    <div class="ml-6 text-left">
+                        <div class="text-3xl font-bold text-slate-800" id="score-display">0 / 0</div>
+                        <div class="text-slate-500">Skor Sementara</div>
+                        <div class="mt-2 text-sm text-slate-600" id="quiz-progress-text">Jawaban: 0 dari 20</div>
+                    </div>
+                </div>
             </div>
 
             <div class="max-w-3xl mx-auto space-y-6" id="quiz-container"></div>
             
-            <div class="text-center mt-10 mb-10">
-                <button onclick="resetQuiz()" class="bg-slate-200 text-slate-700 px-6 py-2 rounded hover:bg-slate-300 transition">Ulangi Kuis</button>
+            <div class="text-center mt-12 mb-8">
+                <button onclick="resetQuiz()" class="gradient-bg text-white font-bold py-3 px-8 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-redo-alt mr-2"></i>Ulangi Kuis
+                </button>
             </div>
         </div>
     </main>
 
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto py-6 px-4 text-center">
-            <p class="text-slate-500 text-sm">Dibuat khusus untuk persiapan UAS SCM.</p>
+    <footer class="bg-slate-800 border-t border-slate-700 mt-16">
+        <div class="max-w-7xl mx-auto py-8 px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center">
+                            <i class="fas fa-graduation-cap text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">SCM StudyHub</h3>
+                            <p class="text-slate-300 text-sm">Persiapan Ujian Akhir Semester</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-slate-300 text-sm">Dibuat khusus untuk persiapan UAS SCM</p>
+                    <p class="text-slate-400 text-xs mt-1">© 2023 - All rights reserved</p>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -228,84 +604,186 @@
             {
                 title: "Manajemen Pergudangan",
                 icon: "🏭",
+                color: "teal",
                 content: `
-                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
-                        <li><strong>Definisi:</strong> Tempat penyimpanan barang hingga dibutuhkan.</li>
-                        <li><strong>Fungsi:</strong> Penerimaan, Identifikasi, Penyimpanan, Picking, Packing, Pengiriman.</li>
-                        <li><strong>Prinsip Penting:</strong>
-                            <ul class="list-circle pl-5 mt-1 text-slate-600">
-                                <li><strong>FIFO:</strong> Masuk Pertama Keluar Pertama.</li>
-                                <li><strong>LIFO:</strong> Masuk Terakhir Keluar Pertama.</li>
-                                <li><strong>FEFO:</strong> Expired Duluan Keluar Duluan.</li>
-                            </ul>
-                        </li>
-                    </ul>`
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-warehouse text-teal-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800">Definisi & Fungsi</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">Tempat penyimpanan barang (bahan baku, WIP, jadi) hingga dibutuhkan untuk proses produksi atau distribusi.</p>
+                        
+                        <div class="pt-3">
+                            <h5 class="font-bold text-slate-700 text-sm mb-2">Prinsip Penyimpanan:</h5>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-teal-50 flex items-center justify-center mr-2">
+                                        <span class="text-teal-600 font-bold text-xs">1</span>
+                                    </div>
+                                    <span class="text-sm text-slate-700">FIFO (First In First Out)</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-teal-50 flex items-center justify-center mr-2">
+                                        <span class="text-teal-600 font-bold text-xs">2</span>
+                                    </div>
+                                    <span class="text-sm text-slate-700">LIFO (Last In First Out)</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-teal-50 flex items-center justify-center mr-2">
+                                        <span class="text-teal-600 font-bold text-xs">3</span>
+                                    </div>
+                                    <span class="text-sm text-slate-700">FEFO (First Expired First Out)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
             },
             {
                 title: "Manajemen Pengadaan",
                 icon: "🛒",
+                color: "blue",
                 content: `
-                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
-                        <li><strong>Tugas:</strong> Menyediakan input barang/jasa untuk perusahaan.</li>
-                        <li><strong>Metode:</strong>
-                            <ul class="list-circle pl-5 mt-1 text-slate-600">
-                                <li>Direct Procurement</li>
-                                <li>Tender</li>
-                                <li>Lelang</li>
-                            </ul>
-                        </li>
-                        <li><strong>Kriteria Supplier:</strong> Kualitas, Harga, Ketepatan Waktu.</li>
-                    </ul>`
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-shopping-cart text-blue-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800">Strategi Pengadaan</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">Proses penyediaan barang/jasa yang dibutuhkan perusahaan dengan memperhatikan kualitas, harga, dan ketepatan waktu.</p>
+                        
+                        <div class="pt-3">
+                            <h5 class="font-bold text-slate-700 text-sm mb-2">Metode Pengadaan:</h5>
+                            <div class="space-y-2">
+                                <div class="bg-blue-50 p-2 rounded-lg">
+                                    <div class="font-semibold text-blue-700 text-sm">Direct Procurement</div>
+                                    <div class="text-xs text-slate-600">Penunjukan langsung ke supplier</div>
+                                </div>
+                                <div class="bg-blue-50 p-2 rounded-lg">
+                                    <div class="font-semibold text-blue-700 text-sm">Tender</div>
+                                    <div class="text-xs text-slate-600">Penawaran harga rahasia</div>
+                                </div>
+                                <div class="bg-blue-50 p-2 rounded-lg">
+                                    <div class="font-semibold text-blue-700 text-sm">Lelang</div>
+                                    <div class="text-xs text-slate-600">Penawaran terbuka</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
             },
             {
                 title: "Transportasi & Distribusi",
                 icon: "🚚",
+                color: "indigo",
                 content: `
-                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
-                        <li><strong>Strategi:</strong>
-                            <ul class="list-circle pl-5 mt-1 text-slate-600">
-                                <li>Direct Shipment</li>
-                                <li>Warehousing</li>
-                                <li>Cross-Docking</li>
-                            </ul>
-                        </li>
-                        <li><strong>Mode:</strong> Laut, Udara, Truk, Kereta.</li>
-                    </ul>`
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-truck text-indigo-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800">Strategi Distribusi</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">Pengelolaan pergerakan barang dari produsen ke konsumen dengan mempertimbangkan efisiensi biaya dan waktu.</p>
+                        
+                        <div class="pt-3">
+                            <h5 class="font-bold text-slate-700 text-sm mb-2">Mode Transportasi:</h5>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-indigo-50 p-2 rounded-lg text-center">
+                                    <div class="text-indigo-700 font-bold text-sm">Laut</div>
+                                    <div class="text-xs text-slate-600">Murah, Lambat</div>
+                                </div>
+                                <div class="bg-indigo-50 p-2 rounded-lg text-center">
+                                    <div class="text-indigo-700 font-bold text-sm">Udara</div>
+                                    <div class="text-xs text-slate-600">Cepat, Mahal</div>
+                                </div>
+                                <div class="bg-indigo-50 p-2 rounded-lg text-center">
+                                    <div class="text-indigo-700 font-bold text-sm">Truk</div>
+                                    <div class="text-xs text-slate-600">Fleksibel</div>
+                                </div>
+                                <div class="bg-indigo-50 p-2 rounded-lg text-center">
+                                    <div class="text-indigo-700 font-bold text-sm">Kereta</div>
+                                    <div class="text-xs text-slate-600">Volume Besar</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
             },
             {
                 title: "Manajemen Persediaan",
                 icon: "📦",
+                color: "green",
                 content: `
-                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
-                        <li><strong>Biaya Persediaan:</strong>
-                            <ul class="list-circle pl-5 mt-1 text-slate-600">
-                                <li>Ordering Cost</li>
-                                <li>Holding Cost</li>
-                                <li>Shortage Cost</li>
-                            </ul>
-                        </li>
-                        <li><strong>Analisis ABC:</strong>
-                            <br>Kelas A (Nilai Tinggi, Jumlah Dikit) - Kontrol Ketat.
-                            <br>Kelas C (Nilai Rendah, Jumlah Banyak) - Kontrol Longgar.
-                        </li>
-                    </ul>`
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-boxes text-green-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800">Biaya Persediaan</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">Pengelolaan stok barang untuk memastikan ketersediaan dengan biaya penyimpanan yang optimal.</p>
+                        
+                        <div class="pt-3">
+                            <h5 class="font-bold text-slate-700 text-sm mb-2">Jenis Biaya:</h5>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                                    <span class="text-sm text-slate-700">Ordering Cost</span>
+                                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Biaya Pesan</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                                    <span class="text-sm text-slate-700">Holding Cost</span>
+                                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Biaya Simpan</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-slate-700">Shortage Cost</span>
+                                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Biaya Kekurangan</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 p-3 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg">
+                                <h6 class="font-bold text-slate-700 text-sm mb-1">Analisis ABC</h6>
+                                <p class="text-xs text-slate-600">Klasifikasi inventory berdasarkan nilai: A (Tinggi), B (Sedang), C (Rendah)</p>
+                            </div>
+                        </div>
+                    </div>`
             },
             {
                 title: "MRP (Material Requirement Planning)",
                 icon: "📅",
+                color: "purple",
                 content: `
-                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
-                        <li><strong>Tujuan:</strong> Menentukan "Kapan" & "Berapa" pesan material.</li>
-                        <li><strong>Input:</strong> MPS, BOM, Stok File.</li>
-                        <li><strong>Langkah:</strong>
-                            <ol class="list-decimal pl-5 mt-1 text-slate-600">
-                                <li>Netting</li>
-                                <li>Lotting</li>
-                                <li>Offsetting</li>
-                                <li>Explosion</li>
-                            </ol>
-                        </li>
-                    </ul>`
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-cogs text-purple-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800">Perencanaan Kebutuhan Material</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">Sistem untuk menentukan "kapan" dan "berapa banyak" material yang harus dipesan berdasarkan jadwal produksi.</p>
+                        
+                        <div class="pt-3">
+                            <h5 class="font-bold text-slate-700 text-sm mb-2">Langkah MRP:</h5>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center mr-2 text-xs font-bold">1</div>
+                                    <span class="text-sm text-slate-700">Netting: Hitung kebutuhan bersih</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center mr-2 text-xs font-bold">2</div>
+                                    <span class="text-sm text-slate-700">Lotting: Tentukan ukuran pesanan</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center mr-2 text-xs font-bold">3</div>
+                                    <span class="text-sm text-slate-700">Offsetting: Sesuaikan dengan lead time</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center mr-2 text-xs font-bold">4</div>
+                                    <span class="text-sm text-slate-700">Explosion: Hitung kebutuhan komponen</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
             }
         ];
 
@@ -336,12 +814,19 @@
         function renderModules() {
             const container = document.getElementById('module-container');
             container.innerHTML = studyModules.map(m => `
-                <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-teal-500 hover:shadow-lg transition">
-                    <div class="flex items-center mb-3">
-                        <span class="text-3xl mr-3">${m.icon}</span>
-                        <h3 class="text-lg font-bold text-slate-800">${m.title}</h3>
+                <div class="card-hover bg-white rounded-2xl shadow-lg p-6 border-t-4 border-${m.color}-500 transition-all duration-300">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-${m.color}-100 flex items-center justify-center mr-4">
+                            <span class="text-2xl">${m.icon}</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">${m.title}</h3>
                     </div>
                     ${m.content}
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <button class="text-sm font-medium text-${m.color}-600 hover:text-${m.color}-700 flex items-center">
+                            <i class="fas fa-arrow-right mr-2"></i> Pelajari Lebih Lanjut
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -352,18 +837,28 @@
         function renderQuiz() {
             const container = document.getElementById('quiz-container');
             container.innerHTML = quizQuestions.map((q, index) => `
-                <div class="bg-white rounded-lg shadow p-5 border border-slate-200" id="q-${index}">
-                    <p class="font-bold text-slate-800 mb-3">${index + 1}. ${q.q}</p>
-                    <div class="space-y-2">
+                <div class="card-hover bg-white rounded-xl shadow-md p-6 border border-slate-200 transition-all duration-300" id="q-${index}">
+                    <div class="flex items-start mb-4">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center mr-3 font-bold">
+                            ${index + 1}
+                        </div>
+                        <p class="font-bold text-slate-800 text-lg flex-1">${q.q}</p>
+                    </div>
+                    <div class="space-y-3">
                         ${q.options.map((opt, i) => `
                             <button onclick="checkAnswer(${index}, ${i})" 
-                                class="w-full text-left px-4 py-2 rounded border border-slate-300 hover:bg-slate-50 transition q-btn-${index}" 
+                                class="quiz-option w-full text-left p-4 rounded-xl border border-slate-300 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 q-btn-${index}" 
                                 id="btn-${index}-${i}">
-                                ${String.fromCharCode(65 + i)}. ${opt}
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center mr-3">
+                                        <span class="font-bold text-slate-700">${String.fromCharCode(65 + i)}</span>
+                                    </div>
+                                    <span class="text-slate-700">${opt}</span>
+                                </div>
                             </button>
                         `).join('')}
                     </div>
-                    <div id="feedback-${index}" class="hidden mt-3 p-3 rounded text-sm"></div>
+                    <div id="feedback-${index}" class="hidden mt-4 p-4 rounded-xl"></div>
                 </div>
             `).join('');
         }
@@ -373,28 +868,73 @@
             const feedbackEl = document.getElementById(`feedback-${qIndex}`);
             const buttons = document.querySelectorAll(`.q-btn-${qIndex}`);
             
-            buttons.forEach(btn => btn.disabled = true);
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-blue-300', 'hover:bg-blue-50');
+            });
 
             if (choiceIndex === q.a) {
-                document.getElementById(`btn-${qIndex}-${choiceIndex}`).classList.add('bg-green-100', 'border-green-500', 'text-green-800');
-                feedbackEl.innerHTML = `<span class="font-bold text-green-700">Benar!</span> ${q.exp}`;
-                feedbackEl.classList.add('bg-green-50', 'border', 'border-green-200');
+                document.getElementById(`btn-${qIndex}-${choiceIndex}`).classList.add('correct-answer');
+                feedbackEl.innerHTML = `
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center mr-3">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h4 class="font-bold text-green-700">Benar!</h4>
+                        </div>
+                        <p class="text-sm text-slate-700">${q.exp}</p>
+                    </div>
+                `;
                 currentScore++;
             } else {
-                document.getElementById(`btn-${qIndex}-${choiceIndex}`).classList.add('bg-red-100', 'border-red-500', 'text-red-800');
-                document.getElementById(`btn-${qIndex}-${q.a}`).classList.add('bg-green-100', 'border-green-500', 'text-green-800');
-                feedbackEl.innerHTML = `<span class="font-bold text-red-700">Salah.</span> Jawaban: ${String.fromCharCode(65+q.a)}. ${q.exp}`;
-                feedbackEl.classList.add('bg-red-50', 'border', 'border-red-200');
+                document.getElementById(`btn-${qIndex}-${choiceIndex}`).classList.add('incorrect-answer');
+                document.getElementById(`btn-${qIndex}-${q.a}`).classList.add('correct-answer');
+                feedbackEl.innerHTML = `
+                    <div class="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl p-4">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center mr-3">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <h4 class="font-bold text-red-700">Salah</h4>
+                        </div>
+                        <p class="text-sm text-slate-700">Jawaban yang benar: <span class="font-bold">${String.fromCharCode(65+q.a)}. ${q.options[q.a]}</span></p>
+                        <p class="text-sm text-slate-700 mt-2">${q.exp}</p>
+                    </div>
+                `;
             }
             feedbackEl.classList.remove('hidden');
             answeredCount++;
-            document.getElementById('score-display').innerText = `Skor: ${currentScore} / ${quizQuestions.length}`;
+            
+            // Update score display
+            document.getElementById('score-display').innerText = `${currentScore} / ${quizQuestions.length}`;
+            
+            // Update progress circle
+            const percentage = Math.round((answeredCount / quizQuestions.length) * 100);
+            document.getElementById('quiz-score').textContent = `${percentage}%`;
+            const progressCircle = document.getElementById('quiz-progress');
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (percentage / 100) * circumference;
+            progressCircle.style.strokeDasharray = circumference;
+            progressCircle.style.strokeDashoffset = offset;
+            
+            // Update progress text
+            document.getElementById('quiz-progress-text').innerText = `Jawaban: ${answeredCount} dari ${quizQuestions.length}`;
         }
 
         function resetQuiz() {
             currentScore = 0;
             answeredCount = 0;
-            document.getElementById('score-display').innerText = `Skor: 0 / 0`;
+            document.getElementById('score-display').innerText = `0 / ${quizQuestions.length}`;
+            document.getElementById('quiz-score').textContent = '0%';
+            document.getElementById('quiz-progress-text').innerText = `Jawaban: 0 dari ${quizQuestions.length}`;
+            
+            // Reset progress circle
+            const progressCircle = document.getElementById('quiz-progress');
+            const circumference = 2 * Math.PI * 45;
+            progressCircle.style.strokeDasharray = circumference;
+            progressCircle.style.strokeDashoffset = circumference;
+            
             renderQuiz();
         }
 
@@ -421,11 +961,32 @@
                 tc = (D * C) + ((D / eoq) * S) + ((eoq / 2) * H);
             }
 
-            document.getElementById('res-eoq').innerText = Math.round(eoq).toLocaleString('id-ID');
-            document.getElementById('res-rop').innerText = Math.round(rop).toLocaleString('id-ID');
-            document.getElementById('res-tc').innerText = Math.round(tc).toLocaleString('id-ID');
+            // Update UI with formatted numbers
+            const formattedEOQ = Math.round(eoq).toLocaleString('id-ID');
+            const formattedROP = Math.round(rop).toLocaleString('id-ID');
+            const formattedTC = Math.round(tc).toLocaleString('id-ID');
+            
+            document.getElementById('res-eoq').textContent = formattedEOQ;
+            document.getElementById('eoq-value').textContent = formattedEOQ;
+            document.getElementById('res-eoq-detail').innerText = `${formattedEOQ} unit per pesanan`;
+            document.getElementById('res-rop').innerText = formattedROP;
+            document.getElementById('res-tc').innerText = formattedTC;
+
+            // Update progress circle for EOQ
+            const maxEOQ = 10000; // Assuming max EOQ for visualization
+            const eoqPercentage = Math.min((eoq / maxEOQ) * 100, 100);
+            const eoqProgress = document.getElementById('eoq-progress');
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (eoqPercentage / 100) * circumference;
+            eoqProgress.style.strokeDasharray = circumference;
+            eoqProgress.style.strokeDashoffset = offset;
 
             updateEOQChart(D, S, H, eoq);
+        }
+
+        function updateMRPSlider(value) {
+            document.getElementById('mrp-gross').value = value;
+            updateMRP();
         }
 
         function updateMRP() {
@@ -433,19 +994,21 @@
             const tbody = document.getElementById('mrp-table-body');
             tbody.innerHTML = '';
 
+            // Update slider to match input
+            document.getElementById('mrp-gross-slider').value = grossWk8;
+
             const kd = calculateMRPItem('Kereta Dorong (L0)', [0,0,0,0,0,0,0,grossWk8], 30, 0, 1, 'LFL', 0);
             const tGross = kd.poRel.map(x => x * 2);
-            const tRec = [0, 200, 0, 0, 0, 0, 0, 0];
             const t = calculateMRPItem('Tangkai (L1)', tGross, 100, 200, 2, 150, 2);
             const srGross = kd.poRel.map(x => x * 1);
             const sr = calculateMRPItem('Sub-Roda (L1)', srGross, 220, 0, 1, 300, 0);
             const bGross = sr.poRel.map(x => x * 1);
             const b = calculateMRPItem('Ban (L2)', bGross, 50, 0, 1, 250, 0);
 
-            renderMRPRow(tbody, kd, 'bg-blue-50');
+            renderMRPRow(tbody, kd, 'bg-gradient-to-r from-blue-50 to-indigo-50');
             renderMRPRow(tbody, t, 'bg-white');
             renderMRPRow(tbody, sr, 'bg-white');
-            renderMRPRow(tbody, b, 'bg-gray-50');
+            renderMRPRow(tbody, b, 'bg-gradient-to-r from-slate-50 to-gray-50');
         }
 
         function calculateMRPItem(name, grossReqs, onHand, schedReceiptVal, lt, lotSize, schedReceiptWk) {
@@ -490,29 +1053,54 @@
 
         function renderMRPRow(tbody, data, bgClass) {
             const rows = [
-                { label: 'Gross Req', val: data.grossReqs },
-                { label: 'Net Req', val: data.netReqs },
-                { label: 'Planned Receipt', val: data.poRec, bold: true },
-                { label: 'Planned Release', val: data.poRel, highlight: true }
+                { label: 'Gross Req', val: data.grossReqs, icon: 'fas fa-arrow-down' },
+                { label: 'Net Req', val: data.netReqs, icon: 'fas fa-calculator' },
+                { label: 'Planned Receipt', val: data.poRec, icon: 'fas fa-box-open', bold: true },
+                { label: 'Planned Release', val: data.poRel, icon: 'fas fa-paper-plane', highlight: true }
             ];
 
-            tbody.innerHTML += `<tr><td colspan="9" class="text-left font-bold px-3 py-2 ${bgClass} border-t-2 border-slate-300 text-slate-800">${data.name}</td></tr>`;
+            // Header for item
+            tbody.innerHTML += `
+                <tr>
+                    <td colspan="9" class="text-left font-bold px-4 py-4 ${bgClass} border-t-2 border-slate-300 text-slate-800 text-lg">
+                        <i class="fas fa-layer-group mr-2 text-indigo-600"></i>${data.name}
+                    </td>
+                </tr>`;
             
-            let schedRow = Array(8).fill('-');
+            // Special row for Scheduled Receipt visual
+            let schedRow = Array(8).fill('');
             if(data.schedReceiptVal > 0) schedRow[data.schedReceiptWk-1] = data.schedReceiptVal;
-            tbody.innerHTML += `<tr class="${bgClass}"><td class="text-left px-3 py-1 text-xs text-slate-500">Sched Receipt</td>${schedRow.map(v => `<td class="py-1 text-xs">${v}</td>`).join('')}</tr>`;
+            tbody.innerHTML += `
+                <tr class="${bgClass}">
+                    <td class="text-left px-4 py-3 text-sm text-slate-500">
+                        <i class="fas fa-calendar-check mr-2"></i>Sched Receipt
+                    </td>
+                    ${schedRow.map(v => `<td class="py-3 ${v ? 'bg-indigo-100 text-indigo-700 font-bold' : ''}">${v || '-'}</td>`).join('')}
+                </tr>`;
             
-            tbody.innerHTML += `<tr class="${bgClass}"><td class="text-left px-3 py-1 text-xs text-slate-500">Proj On Hand</td>${data.pOh.map(v => `<td class="py-1 text-xs">${v}</td>`).join('')}</tr>`;
+            // Special row for Projected OH
+            tbody.innerHTML += `
+                <tr class="${bgClass}">
+                    <td class="text-left px-4 py-3 text-sm text-slate-500">
+                        <i class="fas fa-chart-line mr-2"></i>Proj On Hand
+                    </td>
+                    ${data.pOh.map(v => `<td class="py-3 ${v < 0 ? 'bg-red-100 text-red-700' : ''}">${v}</td>`).join('')}
+                </tr>`;
 
             rows.forEach(r => {
                 const cls = r.highlight ? 'text-indigo-600 font-bold bg-indigo-50' : (r.bold ? 'font-medium' : 'text-slate-500');
                 tbody.innerHTML += `
                     <tr class="${bgClass}">
-                        <td class="text-left px-3 py-1 text-xs ${cls}">${r.label}</td>
-                        ${r.val.map(v => `<td class="py-1 text-xs ${v > 0 && r.highlight ? 'bg-indigo-100 font-bold' : ''}">${v}</td>`).join('')}
+                        <td class="text-left px-4 py-3 text-sm ${cls}">
+                            <i class="${r.icon} mr-2"></i>${r.label}
+                        </td>
+                        ${r.val.map(v => `<td class="py-3 ${v > 0 && r.highlight ? 'bg-gradient-to-r from-indigo-100 to-blue-100 text-indigo-700 font-bold' : ''}">${v}</td>`).join('')}
                     </tr>
                 `;
             });
+            
+            // Add spacing row
+            tbody.innerHTML += `<tr><td colspan="9" class="h-4"></td></tr>`;
         }
 
         // ========== CHARTS ==========
@@ -520,29 +1108,81 @@
         let abcChartInstance = null;
 
         function initCharts() {
+            // EOQ Chart
             const ctxEOQ = document.getElementById('eoqChart').getContext('2d');
             eoqChartInstance = new Chart(ctxEOQ, {
                 type: 'line',
                 data: {
                     labels: [],
                     datasets: [
-                        { label: 'Total Cost', data: [], borderColor: '#0f766e', borderWidth: 2, fill: false },
-                        { label: 'Holding Cost', data: [], borderColor: '#3b82f6', borderDash: [5, 5], borderWidth: 1 },
-                        { label: 'Ordering Cost', data: [], borderColor: '#ef4444', borderDash: [5, 5], borderWidth: 1 }
+                        { 
+                            label: 'Total Cost', 
+                            data: [], 
+                            borderColor: '#0d9488',
+                            backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        { 
+                            label: 'Holding Cost', 
+                            data: [], 
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        { 
+                            label: 'Ordering Cost', 
+                            data: [], 
+                            borderColor: '#ef4444',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
-                    plugins: { legend: { position: 'bottom' } },
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
                     scales: {
-                        x: { title: { display: true, text: 'Jumlah Pesanan (Q)' } },
-                        y: { title: { display: true, text: 'Biaya (Rp)' } }
+                        x: { 
+                            title: { 
+                                display: true, 
+                                text: 'Jumlah Pesanan (Q)',
+                                color: '#64748b',
+                                font: { weight: 'bold' }
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        y: { 
+                            title: { 
+                                display: true, 
+                                text: 'Biaya (Rp)',
+                                color: '#64748b',
+                                font: { weight: 'bold' }
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        }
                     }
                 }
             });
 
+            // ABC Chart
             const ctxABC = document.getElementById('abcChart').getContext('2d');
             abcChartInstance = new Chart(ctxABC, {
                 type: 'bar',
@@ -551,43 +1191,80 @@
                     datasets: [{
                         label: '% Nilai Investasi',
                         data: [70, 20, 10],
-                        backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6'],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(59, 130, 246, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(239, 68, 68)',
+                            'rgb(245, 158, 11)',
+                            'rgb(59, 130, 246)'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8,
                         order: 1
                     }, {
                         label: '% Jumlah Item',
                         data: [10, 20, 70],
                         type: 'line',
                         borderColor: '#1e293b',
-                        borderWidth: 2,
+                        borderWidth: 3,
+                        backgroundColor: 'rgba(30, 41, 59, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#1e293b',
                         order: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Persentase (%)' } }
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100, 
+                            title: { 
+                                display: true, 
+                                text: 'Persentase (%)',
+                                color: '#64748b',
+                                font: { weight: 'bold' }
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
                     }
                 }
             });
         }
 
         function updateEOQChart(D, S, H, optimalQ) {
-            if (!eoqChartInstance) return;
+            if (!eoqChartInstance || optimalQ <= 0) return;
             
             const points = [];
             const labels = [];
             const start = Math.max(100, Math.floor(optimalQ * 0.2));
             const end = Math.floor(optimalQ * 2.5);
-            const step = Math.floor((end - start) / 10);
+            const step = Math.floor((end - start) / 15);
 
             for (let q = start; q <= end; q += step) {
                 const holding = (q / 2) * H;
                 const ordering = (D / q) * S;
                 const varTotal = holding + ordering;
 
-                labels.push(q);
+                labels.push(q.toLocaleString('id-ID'));
                 points.push({ holding, ordering, total: varTotal });
             }
 
@@ -600,21 +1277,55 @@
 
         // ========== CORE UI FUNCTIONS ==========
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
             document.getElementById(tabId).classList.add('active');
             
+            // Update navigation buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-teal-50', 'text-teal-700');
-                btn.classList.add('text-slate-600');
+                btn.classList.remove('active', 'bg-white/30');
             });
             const activeBtn = document.getElementById(`btn-${tabId}`);
-            activeBtn.classList.remove('text-slate-600');
-            activeBtn.classList.add('bg-teal-50', 'text-teal-700');
+            activeBtn.classList.add('active', 'bg-white/30');
+            
+            // Resize charts if needed
+            setTimeout(() => {
+                if (tabId === 'visuals') {
+                    if(eoqChartInstance) eoqChartInstance.resize();
+                    if(abcChartInstance) abcChartInstance.resize();
+                }
+            }, 50);
+        }
 
-            if (tabId === 'visuals') {
-                if(eoqChartInstance) eoqChartInstance.resize();
-                if(abcChartInstance) abcChartInstance.resize();
-            }
+        // ========== EVENT LISTENERS FOR REAL-TIME CALCULATIONS ==========
+        function setupEventListeners() {
+            // EOQ Calculator inputs
+            ['eoq-D', 'eoq-S', 'eoq-C', 'eoq-I', 'eoq-LT', 'eoq-SS'].forEach(id => {
+                const element = document.getElementById(id);
+                element.addEventListener('input', function() {
+                    calculateEOQ();
+                    
+                    // Add animation effect
+                    this.classList.add('ring-2', 'ring-teal-300');
+                    setTimeout(() => {
+                        this.classList.remove('ring-2', 'ring-teal-300');
+                    }, 500);
+                });
+            });
+            
+            // MRP Calculator input
+            document.getElementById('mrp-gross').addEventListener('input', function() {
+                // Sync slider with input
+                document.getElementById('mrp-gross-slider').value = this.value;
+                updateMRP();
+                
+                // Add animation effect
+                this.classList.add('ring-2', 'ring-indigo-300');
+                setTimeout(() => {
+                    this.classList.remove('ring-2', 'ring-indigo-300');
+                }, 500);
+            });
         }
 
         // ========== INITIALIZATION ==========
@@ -622,13 +1333,14 @@
             renderModules();
             renderQuiz();
             initCharts();
+            setupEventListeners();
             
-            ['eoq-D', 'eoq-S', 'eoq-C', 'eoq-I', 'eoq-LT', 'eoq-SS'].forEach(id => {
-                document.getElementById(id).addEventListener('input', calculateEOQ);
-            });
-
+            // Initial Calculations
             calculateEOQ();
             updateMRP();
+            
+            // Set active tab button
+            document.getElementById('btn-study').classList.add('active', 'bg-white/30');
         });
     </script>
 </body>
