@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCM Interactive Study Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f5f2; color: #334155; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            height: 300px; 
+            max-height: 400px; 
+        }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .table-scroll::-webkit-scrollbar { height: 8px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-teal-700">
+                        SCM<span class="text-slate-500 text-lg font-normal">.Edu</span>
+                    </span>
+                </div>
+                <div class="flex space-x-4 overflow-x-auto items-center">
+                    <button onclick="switchTab('study')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 transition" id="btn-study">Materi</button>
+                    <button onclick="switchTab('tools')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition" id="btn-tools">Kalkulator</button>
+                    <button onclick="switchTab('visuals')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition" id="btn-visuals">Visualisasi</button>
+                    <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition" id="btn-quiz">Latihan Soal</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <!-- SECTION 1: STUDY MODULES -->
+        <div id="study" class="tab-content active fade-in">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-slate-800">Ringkasan Materi SCM</h1>
+                <p class="mt-2 text-slate-600">Pelajari konsep kunci dari Manajemen Pergudangan hingga MRP.</p>
+            </div>
+            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="module-container"></div>
+        </div>
+
+        <!-- SECTION 2: INTERACTIVE TOOLS -->
+        <div id="tools" class="tab-content fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-slate-800">Alat Simulasi & Hitungan</h1>
+                <p class="mt-2 text-slate-600">Gunakan alat ini untuk memahami rumus EOQ dan logika MRP.</p>
+            </div>
+            <div class="grid gap-8 lg:grid-cols-1">
+                <!-- EOQ Calculator -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500">
+                    <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center">
+                        <span class="bg-teal-100 text-teal-700 p-2 rounded-lg mr-3">∑</span>
+                        Kalkulator EOQ & ROP
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Permintaan Tahunan (D)</label>
+                                <input type="number" id="eoq-D" value="24000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Biaya Pesan per Order (S)</label>
+                                <input type="number" id="eoq-S" value="450000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Harga per Unit (C)</label>
+                                <input type="number" id="eoq-C" value="12000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700">Biaya Simpan % (I)</label>
+                                    <input type="number" id="eoq-I" value="18" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                                    <p class="text-xs text-gray-500 mt-1">Contoh: 18 untuk 18%</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700">Lead Time (Hari)</label>
+                                    <input type="number" id="eoq-LT" value="7" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Safety Stock (Unit)</label>
+                                <input type="number" id="eoq-SS" value="240" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 bg-slate-50 p-2 border">
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-50 p-6 rounded-lg flex flex-col justify-center space-y-6">
+                            <div class="text-center">
+                                <p class="text-sm text-slate-500 font-medium uppercase">Economic Order Quantity (EOQ)</p>
+                                <p class="text-4xl font-bold text-teal-600 mt-1" id="res-eoq">0</p>
+                                <p class="text-sm text-slate-400">Unit per pesanan</p>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 pt-4">
+                                <div class="text-center w-1/2 border-r border-slate-200">
+                                    <p class="text-xs text-slate-500 font-medium">Reorder Point (ROP)</p>
+                                    <p class="text-xl font-bold text-slate-700" id="res-rop">0</p>
+                                    <p class="text-xs text-slate-400">Unit</p>
+                                </div>
+                                <div class="text-center w-1/2">
+                                    <p class="text-xs text-slate-500 font-medium">Total Cost (Tahunan)</p>
+                                    <p class="text-xl font-bold text-slate-700" id="res-tc">0</p>
+                                    <p class="text-xs text-slate-400">Rupiah</p>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded text-xs text-blue-800">
+                                <p><strong>Rumus:</strong> EOQ = √(2×D×S / H)</p>
+                                <p>Dimana H = I × C</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MRP Simulator -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-500">
+                    <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center">
+                        <span class="bg-indigo-100 text-indigo-700 p-2 rounded-lg mr-3">📅</span>
+                        Simulator MRP Sederhana (Studi Kasus: Kereta Dorong)
+                    </h2>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Ubah <strong>Gross Requirements (MPS)</strong> untuk Produk Jadi (Kereta Dorong) di minggu ke-8 untuk melihat dampaknya pada komponen level bawah.
+                        <br><span class="text-xs italic">Skenario: Kereta Dorong butuh 2 Tangkai & 1 Sub-Roda. Sub-Roda butuh 1 Ban.</span>
+                    </p>
+
+                    <div class="grid md:grid-cols-4 gap-4 mb-6">
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium text-slate-700">Kebutuhan Minggu 8 (Unit)</label>
+                            <input type="number" id="mrp-gross" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-slate-50 p-2 border">
+                            <button onclick="updateMRP()" class="mt-2 w-full bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 transition">Hitung MRP</button>
+                        </div>
+                        <div class="col-span-3 bg-slate-50 p-3 rounded text-sm text-slate-600 grid grid-cols-2 gap-2">
+                            <div><strong>Kereta Dorong:</strong> Stok 30, LT 1, Lot LFL</div>
+                            <div><strong>Tangkai (2x):</strong> Stok 100, LT 2, Lot 150 (Receipt 200 di Wk 2)</div>
+                            <div><strong>Sub-Roda (1x):</strong> Stok 220, LT 1, Lot 300</div>
+                            <div><strong>Ban (1x):</strong> Stok 50, LT 1, Lot 250</div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto table-scroll">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm text-center">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left">Minggu</th>
+                                    <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200" id="mrp-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: VISUAL INSIGHTS -->
+        <div id="visuals" class="tab-content fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-slate-800">Visualisasi Konsep</h1>
+                <p class="mt-2 text-slate-600">Grafik interaktif untuk memahami hubungan antar variabel.</p>
+            </div>
+            <div class="grid gap-8 md:grid-cols-2">
+                <!-- EOQ Chart -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Kurva Biaya Persediaan (Konsep EOQ)</h3>
+                    <p class="text-sm text-slate-500 mb-4">Melihat trade-off antara Biaya Simpan dan Biaya Pesan.</p>
+                    <div class="chart-container">
+                        <canvas id="eoqChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-500 text-center">
+                        Titik temu antara garis merah dan biru adalah EOQ optimal.
+                    </div>
+                </div>
+
+                <!-- ABC Analysis Chart -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Prinsip Analisis ABC (Pareto)</h3>
+                    <p class="text-sm text-slate-500 mb-4">Kelas A (Sedikit item, Nilai tinggi) vs Kelas C.</p>
+                    <div class="chart-container">
+                        <canvas id="abcChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-500 text-center">
+                        Kelas A butuh kontrol ketat, Kelas C kontrol longgar.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: PRACTICE QUIZ -->
+        <div id="quiz" class="tab-content fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-slate-800">Latihan Soal Ujian</h1>
+                <p class="mt-2 text-slate-600">20 Soal Prediksi Pilihan Ganda. Klik jawaban untuk melihat pembahasan.</p>
+                <div class="mt-4 text-xl font-bold text-teal-600" id="score-display">Skor: 0 / 0</div>
+            </div>
+
+            <div class="max-w-3xl mx-auto space-y-6" id="quiz-container"></div>
+            
+            <div class="text-center mt-10 mb-10">
+                <button onclick="resetQuiz()" class="bg-slate-200 text-slate-700 px-6 py-2 rounded hover:bg-slate-300 transition">Ulangi Kuis</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 text-center">
+            <p class="text-slate-500 text-sm">Dibuat khusus untuk persiapan UAS SCM.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== DATA OBJECTS ==========
+        const studyModules = [
+            {
+                title: "Manajemen Pergudangan",
+                icon: "🏭",
+                content: `
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Definisi:</strong> Tempat penyimpanan barang hingga dibutuhkan.</li>
+                        <li><strong>Fungsi:</strong> Penerimaan, Identifikasi, Penyimpanan, Picking, Packing, Pengiriman.</li>
+                        <li><strong>Prinsip Penting:</strong>
+                            <ul class="list-circle pl-5 mt-1 text-slate-600">
+                                <li><strong>FIFO:</strong> Masuk Pertama Keluar Pertama.</li>
+                                <li><strong>LIFO:</strong> Masuk Terakhir Keluar Pertama.</li>
+                                <li><strong>FEFO:</strong> Expired Duluan Keluar Duluan.</li>
+                            </ul>
+                        </li>
+                    </ul>`
+            },
+            {
+                title: "Manajemen Pengadaan",
+                icon: "🛒",
+                content: `
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Tugas:</strong> Menyediakan input barang/jasa untuk perusahaan.</li>
+                        <li><strong>Metode:</strong>
+                            <ul class="list-circle pl-5 mt-1 text-slate-600">
+                                <li>Direct Procurement</li>
+                                <li>Tender</li>
+                                <li>Lelang</li>
+                            </ul>
+                        </li>
+                        <li><strong>Kriteria Supplier:</strong> Kualitas, Harga, Ketepatan Waktu.</li>
+                    </ul>`
+            },
+            {
+                title: "Transportasi & Distribusi",
+                icon: "🚚",
+                content: `
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Strategi:</strong>
+                            <ul class="list-circle pl-5 mt-1 text-slate-600">
+                                <li>Direct Shipment</li>
+                                <li>Warehousing</li>
+                                <li>Cross-Docking</li>
+                            </ul>
+                        </li>
+                        <li><strong>Mode:</strong> Laut, Udara, Truk, Kereta.</li>
+                    </ul>`
+            },
+            {
+                title: "Manajemen Persediaan",
+                icon: "📦",
+                content: `
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Biaya Persediaan:</strong>
+                            <ul class="list-circle pl-5 mt-1 text-slate-600">
+                                <li>Ordering Cost</li>
+                                <li>Holding Cost</li>
+                                <li>Shortage Cost</li>
+                            </ul>
+                        </li>
+                        <li><strong>Analisis ABC:</strong>
+                            <br>Kelas A (Nilai Tinggi, Jumlah Dikit) - Kontrol Ketat.
+                            <br>Kelas C (Nilai Rendah, Jumlah Banyak) - Kontrol Longgar.
+                        </li>
+                    </ul>`
+            },
+            {
+                title: "MRP (Material Requirement Planning)",
+                icon: "📅",
+                content: `
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Tujuan:</strong> Menentukan "Kapan" & "Berapa" pesan material.</li>
+                        <li><strong>Input:</strong> MPS, BOM, Stok File.</li>
+                        <li><strong>Langkah:</strong>
+                            <ol class="list-decimal pl-5 mt-1 text-slate-600">
+                                <li>Netting</li>
+                                <li>Lotting</li>
+                                <li>Offsetting</li>
+                                <li>Explosion</li>
+                            </ol>
+                        </li>
+                    </ul>`
+            }
+        ];
+
+        const quizQuestions = [
+            { q: "Apa yang dimaksud dengan FEFO?", options: ["Barang masuk terakhir keluar duluan", "Barang masuk pertama keluar pertama", "Barang mendekati kadaluwarsa keluar duluan", "Barang termahal keluar duluan"], a: 2, exp: "FEFO (First Expired First Out) memprioritaskan barang yang masa berlakunya hampir habis." },
+            { q: "Gudang untuk menyimpan barang yang perlu pengaman suhu (ikan, sayur) disebut...", options: ["Bonded Warehouse", "Cold Storage", "Bulk Storage", "General Merchandise"], a: 1, exp: "Cold Storage memiliki fasilitas pendingin khusus." },
+            { q: "Strategi distribusi langsung dari truk penerima ke pengirim tanpa disimpan lama...", options: ["Direct Shipment", "Cross-Docking", "Warehousing", "Consolidation"], a: 1, exp: "Cross-docking meminimalkan waktu simpan di gudang." },
+            { q: "Barang mewakili 70% nilai persediaan tapi hanya 10% jumlah fisik adalah...", options: ["Kelas A", "Kelas B", "Kelas C", "Kelas D"], a: 0, exp: "Analisis ABC: Kelas A bernilai tinggi (Pareto)." },
+            { q: "Manakah yang termasuk Holding Cost?", options: ["Biaya admin", "Biaya asuransi pengiriman", "Pajak & listrik gudang", "Biaya bongkar muat"], a: 2, exp: "Biaya yang timbul karena MENYIMPAN barang." },
+            { q: "Input MRP berisi daftar komponen penyusun produk adalah...", options: ["MPS", "Inventory Status", "Bill of Material", "Purchase Requisition"], a: 2, exp: "BOM adalah struktur/resep produk." },
+            { q: "Waktu tunggu dari pesan sampai barang datang disebut...", options: ["Cycle Time", "Lead Time", "Set-up Time", "Arrival Time"], a: 1, exp: "Lead Time adalah durasi pengadaan." },
+            { q: "Metode pembelian paling optimal dan ekonomis...", options: ["JIT", "MRP", "EOQ", "ABC"], a: 2, exp: "EOQ (Economic Order Quantity) menyeimbangkan biaya simpan dan pesan." },
+            { q: "Menghitung selisih kebutuhan kotor dan persediaan disebut...", options: ["Netting", "Lotting", "Explosion", "Offsetting"], a: 0, exp: "Netting = Gross Req - On Hand - Scheduled Receipt." },
+            { q: "Mode transportasi terlambat tapi volume masif antar benua...", options: ["Udara", "Truk", "Kereta", "Laut"], a: 3, exp: "Kapal laut paling efisien untuk volume besar jarak jauh." },
+            { q: "Gudang di bawah pengawasan Bea Cukai disebut...", options: ["Bulk", "Bonded Warehouse", "DC", "Transit"], a: 1, exp: "Bonded Warehouse (Gudang Berikat)." },
+            { q: "Prinsip LIFO biasanya untuk...", options: ["Farmasi", "Sembako", "Fashion/Baju", "Beras"], a: 2, exp: "Fashion/Baju agar stok model terbaru yang terjual duluan." },
+            { q: "Keuntungan utama JIT (Just In Time)...", options: ["Stok banyak", "Biaya simpan minim", "Mudah pengadaan", "Diskon besar"], a: 1, exp: "JIT menekan stok hingga mendekati nol." },
+            { q: "Kebutuhan komponen tergantung produk atasnya disebut...", options: ["Independent Demand", "Dependent Demand", "Variable", "Seasonal"], a: 1, exp: "Dependent Demand (contoh: Ban tergantung Mobil)." },
+            { q: "Simbol 'S' dalam rumus EOQ mewakili...", options: ["Annual Demand", "Holding Cost", "Ordering Cost", "Safety Stock"], a: 2, exp: "Setup / Ordering Cost." },
+            { q: "Tujuan Safety Stock adalah...", options: ["Kurangi biaya pesan", "Dapat diskon", "Lindungi dari ketidakpastian", "Percepat produksi"], a: 2, exp: "Buffer untuk fluktuasi demand atau lead time." },
+            { q: "Membagi volume besar menjadi kiriman kecil...", options: ["Consolidation", "Break Bulk", "Mixing", "Storage"], a: 1, exp: "Break Bulk memecah muatan besar." },
+            { q: "Dokumen penawaran harga vendor...", options: ["PO", "Bill of Lading", "Quotation", "Requisition"], a: 2, exp: "Quotation adalah surat penawaran." },
+            { q: "Menarik mundur jadwal pesan berdasar Lead Time...", options: ["Netting", "Lotting", "Offsetting", "Explosion"], a: 2, exp: "Offsetting menentukan kapan harus Order Release." },
+            { q: "Mode transportasi layanan 'door-to-door'...", options: ["Laut", "Kereta", "Truk", "Udara"], a: 2, exp: "Truk bisa masuk ke jalan-jalan akses pabrik/toko." }
+        ];
+
+        // ========== RENDER FUNCTIONS ==========
+        function renderModules() {
+            const container = document.getElementById('module-container');
+            container.innerHTML = studyModules.map(m => `
+                <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-teal-500 hover:shadow-lg transition">
+                    <div class="flex items-center mb-3">
+                        <span class="text-3xl mr-3">${m.icon}</span>
+                        <h3 class="text-lg font-bold text-slate-800">${m.title}</h3>
+                    </div>
+                    ${m.content}
+                </div>
+            `).join('');
+        }
+
+        let currentScore = 0;
+        let answeredCount = 0;
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizQuestions.map((q, index) => `
+                <div class="bg-white rounded-lg shadow p-5 border border-slate-200" id="q-${index}">
+                    <p class="font-bold text-slate-800 mb-3">${index + 1}. ${q.q}</p>
+                    <div class="space-y-2">
+                        ${q.options.map((opt, i) => `
+                            <button onclick="checkAnswer(${index}, ${i})" 
+                                class="w-full text-left px-4 py-2 rounded border border-slate-300 hover:bg-slate-50 transition q-btn-${index}" 
+                                id="btn-${index}-${i}">
+                                ${String.fromCharCode(65 + i)}. ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden mt-3 p-3 rounded text-sm"></div>
+                </div>
+            `).join('');
+        }
+
+        function checkAnswer(qIndex, choiceIndex) {
+            const q = quizQuestions[qIndex];
+            const feedbackEl = document.getElementById(`feedback-${qIndex}`);
+            const buttons = document.querySelectorAll(`.q-btn-${qIndex}`);
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (choiceIndex === q.a) {
+                document.getElementById(`btn-${qIndex}-${choiceIndex}`).classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                feedbackEl.innerHTML = `<span class="font-bold text-green-700">Benar!</span> ${q.exp}`;
+                feedbackEl.classList.add('bg-green-50', 'border', 'border-green-200');
+                currentScore++;
+            } else {
+                document.getElementById(`btn-${qIndex}-${choiceIndex}`).classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                document.getElementById(`btn-${qIndex}-${q.a}`).classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                feedbackEl.innerHTML = `<span class="font-bold text-red-700">Salah.</span> Jawaban: ${String.fromCharCode(65+q.a)}. ${q.exp}`;
+                feedbackEl.classList.add('bg-red-50', 'border', 'border-red-200');
+            }
+            feedbackEl.classList.remove('hidden');
+            answeredCount++;
+            document.getElementById('score-display').innerText = `Skor: ${currentScore} / ${quizQuestions.length}`;
+        }
+
+        function resetQuiz() {
+            currentScore = 0;
+            answeredCount = 0;
+            document.getElementById('score-display').innerText = `Skor: 0 / 0`;
+            renderQuiz();
+        }
+
+        // ========== CALCULATOR LOGIC ==========
+        function calculateEOQ() {
+            const D = parseFloat(document.getElementById('eoq-D').value) || 0;
+            const S = parseFloat(document.getElementById('eoq-S').value) || 0;
+            const C = parseFloat(document.getElementById('eoq-C').value) || 0;
+            const I = parseFloat(document.getElementById('eoq-I').value) || 0;
+            const LT = parseFloat(document.getElementById('eoq-LT').value) || 0;
+            const SS = parseFloat(document.getElementById('eoq-SS').value) || 0;
+
+            const H = (I / 100) * C;
+            let eoq = 0;
+            if (H > 0) {
+                eoq = Math.sqrt((2 * D * S) / H);
+            }
+
+            const dailyUsage = D / 365;
+            const rop = (dailyUsage * LT) + SS;
+
+            let tc = 0;
+            if (eoq > 0) {
+                tc = (D * C) + ((D / eoq) * S) + ((eoq / 2) * H);
+            }
+
+            document.getElementById('res-eoq').innerText = Math.round(eoq).toLocaleString('id-ID');
+            document.getElementById('res-rop').innerText = Math.round(rop).toLocaleString('id-ID');
+            document.getElementById('res-tc').innerText = Math.round(tc).toLocaleString('id-ID');
+
+            updateEOQChart(D, S, H, eoq);
+        }
+
+        function updateMRP() {
+            const grossWk8 = parseInt(document.getElementById('mrp-gross').value) || 0;
+            const tbody = document.getElementById('mrp-table-body');
+            tbody.innerHTML = '';
+
+            const kd = calculateMRPItem('Kereta Dorong (L0)', [0,0,0,0,0,0,0,grossWk8], 30, 0, 1, 'LFL', 0);
+            const tGross = kd.poRel.map(x => x * 2);
+            const tRec = [0, 200, 0, 0, 0, 0, 0, 0];
+            const t = calculateMRPItem('Tangkai (L1)', tGross, 100, 200, 2, 150, 2);
+            const srGross = kd.poRel.map(x => x * 1);
+            const sr = calculateMRPItem('Sub-Roda (L1)', srGross, 220, 0, 1, 300, 0);
+            const bGross = sr.poRel.map(x => x * 1);
+            const b = calculateMRPItem('Ban (L2)', bGross, 50, 0, 1, 250, 0);
+
+            renderMRPRow(tbody, kd, 'bg-blue-50');
+            renderMRPRow(tbody, t, 'bg-white');
+            renderMRPRow(tbody, sr, 'bg-white');
+            renderMRPRow(tbody, b, 'bg-gray-50');
+        }
+
+        function calculateMRPItem(name, grossReqs, onHand, schedReceiptVal, lt, lotSize, schedReceiptWk) {
+            let projected = onHand;
+            const netReqs = [];
+            const poRec = [];
+            const poRel = [0,0,0,0,0,0,0,0];
+            const pOh = [];
+
+            for (let i = 0; i < 8; i++) {
+                const sched = (i === schedReceiptWk - 1) ? schedReceiptVal : 0;
+                let gross = grossReqs[i] || 0;
+                
+                let avail = projected + sched;
+                let net = 0;
+                let receipt = 0;
+
+                if (avail < gross) {
+                    net = gross - avail;
+                    if (lotSize === 'LFL') {
+                        receipt = net;
+                    } else {
+                        receipt = Math.ceil(net / lotSize) * lotSize;
+                    }
+                }
+
+                projected = avail + receipt - gross;
+                pOh.push(projected);
+                netReqs.push(net);
+                poRec.push(receipt);
+
+                if (receipt > 0) {
+                    const releaseWk = i - lt;
+                    if (releaseWk >= 0) {
+                        poRel[releaseWk] += receipt;
+                    }
+                }
+            }
+            
+            return { name, grossReqs, schedReceiptVal, schedReceiptWk, pOh, netReqs, poRec, poRel };
+        }
+
+        function renderMRPRow(tbody, data, bgClass) {
+            const rows = [
+                { label: 'Gross Req', val: data.grossReqs },
+                { label: 'Net Req', val: data.netReqs },
+                { label: 'Planned Receipt', val: data.poRec, bold: true },
+                { label: 'Planned Release', val: data.poRel, highlight: true }
+            ];
+
+            tbody.innerHTML += `<tr><td colspan="9" class="text-left font-bold px-3 py-2 ${bgClass} border-t-2 border-slate-300 text-slate-800">${data.name}</td></tr>`;
+            
+            let schedRow = Array(8).fill('-');
+            if(data.schedReceiptVal > 0) schedRow[data.schedReceiptWk-1] = data.schedReceiptVal;
+            tbody.innerHTML += `<tr class="${bgClass}"><td class="text-left px-3 py-1 text-xs text-slate-500">Sched Receipt</td>${schedRow.map(v => `<td class="py-1 text-xs">${v}</td>`).join('')}</tr>`;
+            
+            tbody.innerHTML += `<tr class="${bgClass}"><td class="text-left px-3 py-1 text-xs text-slate-500">Proj On Hand</td>${data.pOh.map(v => `<td class="py-1 text-xs">${v}</td>`).join('')}</tr>`;
+
+            rows.forEach(r => {
+                const cls = r.highlight ? 'text-indigo-600 font-bold bg-indigo-50' : (r.bold ? 'font-medium' : 'text-slate-500');
+                tbody.innerHTML += `
+                    <tr class="${bgClass}">
+                        <td class="text-left px-3 py-1 text-xs ${cls}">${r.label}</td>
+                        ${r.val.map(v => `<td class="py-1 text-xs ${v > 0 && r.highlight ? 'bg-indigo-100 font-bold' : ''}">${v}</td>`).join('')}
+                    </tr>
+                `;
+            });
+        }
+
+        // ========== CHARTS ==========
+        let eoqChartInstance = null;
+        let abcChartInstance = null;
+
+        function initCharts() {
+            const ctxEOQ = document.getElementById('eoqChart').getContext('2d');
+            eoqChartInstance = new Chart(ctxEOQ, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Total Cost', data: [], borderColor: '#0f766e', borderWidth: 2, fill: false },
+                        { label: 'Holding Cost', data: [], borderColor: '#3b82f6', borderDash: [5, 5], borderWidth: 1 },
+                        { label: 'Ordering Cost', data: [], borderColor: '#ef4444', borderDash: [5, 5], borderWidth: 1 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        x: { title: { display: true, text: 'Jumlah Pesanan (Q)' } },
+                        y: { title: { display: true, text: 'Biaya (Rp)' } }
+                    }
+                }
+            });
+
+            const ctxABC = document.getElementById('abcChart').getContext('2d');
+            abcChartInstance = new Chart(ctxABC, {
+                type: 'bar',
+                data: {
+                    labels: ['Kelas A', 'Kelas B', 'Kelas C'],
+                    datasets: [{
+                        label: '% Nilai Investasi',
+                        data: [70, 20, 10],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6'],
+                        order: 1
+                    }, {
+                        label: '% Jumlah Item',
+                        data: [10, 20, 70],
+                        type: 'line',
+                        borderColor: '#1e293b',
+                        borderWidth: 2,
+                        order: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Persentase (%)' } }
+                    }
+                }
+            });
+        }
+
+        function updateEOQChart(D, S, H, optimalQ) {
+            if (!eoqChartInstance) return;
+            
+            const points = [];
+            const labels = [];
+            const start = Math.max(100, Math.floor(optimalQ * 0.2));
+            const end = Math.floor(optimalQ * 2.5);
+            const step = Math.floor((end - start) / 10);
+
+            for (let q = start; q <= end; q += step) {
+                const holding = (q / 2) * H;
+                const ordering = (D / q) * S;
+                const varTotal = holding + ordering;
+
+                labels.push(q);
+                points.push({ holding, ordering, total: varTotal });
+            }
+
+            eoqChartInstance.data.labels = labels;
+            eoqChartInstance.data.datasets[0].data = points.map(p => p.total);
+            eoqChartInstance.data.datasets[1].data = points.map(p => p.holding);
+            eoqChartInstance.data.datasets[2].data = points.map(p => p.ordering);
+            eoqChartInstance.update();
+        }
+
+        // ========== CORE UI FUNCTIONS ==========
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-teal-50', 'text-teal-700');
+                btn.classList.add('text-slate-600');
+            });
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.remove('text-slate-600');
+            activeBtn.classList.add('bg-teal-50', 'text-teal-700');
+
+            if (tabId === 'visuals') {
+                if(eoqChartInstance) eoqChartInstance.resize();
+                if(abcChartInstance) abcChartInstance.resize();
+            }
+        }
+
+        // ========== INITIALIZATION ==========
+        window.addEventListener('DOMContentLoaded', () => {
+            renderModules();
+            renderQuiz();
+            initCharts();
+            
+            ['eoq-D', 'eoq-S', 'eoq-C', 'eoq-I', 'eoq-LT', 'eoq-SS'].forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateEOQ);
+            });
+
+            calculateEOQ();
+            updateMRP();
+        });
+    </script>
+</body>
+</html>
